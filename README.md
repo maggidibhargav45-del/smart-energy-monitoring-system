@@ -1,130 +1,201 @@
 # ⚡ Smart Energy Monitoring System
 
+An IoT-based energy monitoring system developed using **ESP8266, ADS1115, ACS712, ZMPT101B and Blynk** for real-time monitoring of electrical parameters and electricity cost estimation.
+
 ## 📌 Project Overview
 
-The Smart Energy Monitoring System is an IoT-based system developed to monitor electrical energy parameters of single-phase AC loads in real time.
+The Smart Energy Monitoring System measures and monitors:
 
-The system uses an ESP8266 NodeMCU along with voltage and current sensors to measure RMS voltage and RMS current. The measured parameters are processed to calculate power and energy consumption.
+* ⚡ Voltage
+* 🔌 Current
+* 💡 Power
+* 📊 Energy consumption
+* 💰 Electricity cost estimation
+* 🚨 Overcurrent alerts
 
-The readings are displayed locally on a 16x2 I2C LCD and transmitted over Wi-Fi to the Blynk IoT platform for remote monitoring.
+The measured data is displayed locally on a **16×2 I2C LCD** and transmitted through Wi-Fi to the **Blynk IoT platform** for remote monitoring and visualization.
 
-## 🎯 Objectives
+## 🏗️ System Architecture
 
-- Measure RMS voltage of AC loads
-- Measure RMS current
-- Calculate electrical power
-- Monitor cumulative energy consumption
-- Display readings locally using an LCD
-- Monitor parameters remotely using Blynk IoT
-- Generate an alert when current exceeds the defined threshold
+```text
+AC Supply
+   │
+   ├── ZMPT101B ──► Voltage Measurement
+   │
+   └── ACS712 ────► Current Measurement
+                         │
+                         ▼
+                    ADS1115 ADC
+                         │
+                         ▼
+                  ESP8266 NodeMCU
+                    │          │
+                    │          └──► 16×2 I2C LCD
+                    │
+                    ▼
+                  Wi-Fi
+                    │
+                    ▼
+               Blynk IoT Cloud
+                    │
+                    ▼
+             Mobile Dashboard
+```
 
-## 🧰 Hardware Components
+## 🔧 Hardware Components
 
-- ESP8266 NodeMCU
-- ACS712 Current Sensor
-- ZMPT101B Voltage Sensor
-- ADS1115 16-bit ADC
-- 16x2 I2C LCD
-- AC Load
-- Breadboard and connecting wires
+| Component          | Purpose                                 |
+| ------------------ | --------------------------------------- |
+| ESP8266 NodeMCU    | Main controller and Wi-Fi communication |
+| ACS712             | Current sensing                         |
+| ZMPT101B           | AC voltage sensing                      |
+| ADS1115            | 16-bit ADC for sensor measurement       |
+| 16×2 I2C LCD       | Local display                           |
+| AC Load            | Load for testing                        |
+| Breadboard & wires | Circuit prototyping                     |
 
-## 💻 Software and Technologies
+## 💻 Software & Technologies
 
-- Embedded C/C++
-- Arduino IDE
-- ESP8266
-- I2C
-- Blynk IoT
-- ADC
-- RMS Signal Processing
+* Embedded C/C++
+* Arduino IDE
+* ESP8266
+* Blynk IoT
+* I2C Communication
+* ADC Signal Processing
+* Voltage and Current Measurement
+* Energy Monitoring
 
-## ⚙️ Working
+## ⚙️ Working Principle
 
-1. The ZMPT101B voltage sensor measures the AC voltage.
-2. The ACS712 measures the load current.
-3. The ADS1115 provides high-resolution analog-to-digital conversion.
-4. The ESP8266 processes the sampled sensor signals.
-5. RMS voltage and current are calculated.
-6. Electrical power is calculated from the measured parameters.
+1. The **ZMPT101B** senses the AC voltage.
+2. The **ACS712** senses the load current.
+3. The sensor signals are acquired using the **ADS1115 ADC**.
+4. The ESP8266 processes and filters the measurements.
+5. Voltage and current values are calculated.
+6. Power is estimated using:
+
+```text
+Power = Voltage × Current
+```
+
 7. Energy consumption is accumulated over time.
-8. The readings are displayed on the LCD.
-9. The ESP8266 sends the readings to the Blynk IoT platform through Wi-Fi.
-10. An overcurrent notification is generated when the current crosses the defined threshold.
+8. Energy in Wh is converted into units:
 
-## 📊 Parameters Monitored
+```text
+1 unit = 1 kWh = 1000 Wh
+```
 
-- RMS Voltage
-- RMS Current
-- Power
-- Energy Consumption
+9. Electricity cost is estimated using:
 
-## 📱 Blynk IoT
+```text
+Cost = Energy Units × Unit Price
+```
 
-The Blynk dashboard is used for remote monitoring of:
+10. The values are displayed on the LCD and sent to the Blynk dashboard through Wi-Fi.
 
-- Voltage
-- Current
-- Power
-- Energy
+## 📱 Blynk Dashboard
 
-The system also provides an overcurrent notification through the mobile application.
+The system sends the following parameters to Blynk:
 
-## 👥 Team Members
+| Virtual Pin | Parameter |
+| ----------- | --------- |
+| V0          | Voltage   |
+| V1          | Current   |
+| V2          | Power     |
+| V3          | Energy    |
+| V4          | Cost      |
 
-### J. Nanda Vardhan
-- Hardware assembly
-- Circuit integration
-- Prototype development
+An overcurrent notification is generated when the measured current exceeds the configured safety threshold.
 
-### M. Bhargav
-- Firmware development
-- ADC sampling
-- RMS voltage and current calculations
-- Noise filtering
+## 🧮 Cost Estimation
 
-### M. Monalisa
-- Blynk IoT integration
-- Mobile dashboard
-- Push notification system
+The current implementation uses a configurable electricity rate:
 
-### 🤝 Teamwork
+```cpp
+float unitPrice = 7.0;
+```
 
-All three team members collaboratively contributed to:
+The estimated cost is calculated as:
 
-- System architecture
-- Component selection
-- Hardware integration
-- Calibration
-- Testing and debugging
-- Documentation
+```text
+Energy Units = Energy (Wh) / 1000
+Cost = Energy Units × Unit Price
+```
+
+The value of the unit price can be changed according to the applicable electricity tariff.
 
 ## 🧪 Testing
 
-The prototype was tested using resistive loads and compared against a calibrated digital multimeter.
+The system was tested using electrical loads such as:
 
-The project included testing for:
+* 100 W bulb
+* 1000 W heater
 
-- Voltage measurement
-- Current measurement
-- Power calculation
-- System stability
-- Overcurrent notification
+Measurements were compared with a calibrated digital multimeter to evaluate the system's measurement accuracy.
+
+## ⚠️ Important Note
+
+The current implementation estimates power using:
+
+```text
+P = V × I
+```
+
+This is suitable for approximately resistive loads. For inductive loads such as motors and fans, power factor should be considered for more accurate real-power measurement.
 
 ## 🚀 Future Scope
 
-Possible future improvements include:
+Possible improvements include:
 
-- Three-phase energy monitoring
-- Improved power-factor measurement
-- Dedicated energy-metering IC
-- Machine-learning-based energy analysis
-- Non-Intrusive Load Monitoring
-- Local data storage using SD card
+* True RMS voltage and current measurement
+* Power-factor measurement
+* Three-phase energy monitoring
+* SD-card/cloud backup
+* Non-Intrusive Load Monitoring (NILM)
+* Machine-learning-based load identification
+* Dedicated energy-metering IC integration
+* Improved calibration and signal conditioning
 
-## 📷 Project Images
+## 👥 Team Members
 
-Project prototype and Blynk dashboard images can be added here.
+* **J. Nanda Vardhan** — Hardware assembly, circuit integration and prototyping
+* **M. Bhargav** — Firmware development, ADC processing, filtering, voltage/current calculation and energy tracking
+* **M. Monalisa** — Blynk IoT integration, dashboard development and notifications
 
-## 📚 Project Documentation
+The team collaboratively worked on system architecture, component selection, integration, calibration, testing, debugging and documentation.
 
-The project report can be added to the repository after removing any private or sensitive information.
+## 📂 Repository Structure
+
+```text
+smart-energy-monitoring-system/
+│
+├── README.md
+│
+├── src/
+│   └── Smart_Energy_Monitoring.ino
+│
+├── hardware/
+│   ├── prototype.jpg
+│   └── circuit_diagram.png
+│
+├── results/
+│   └── blynk_dashboard.jpg
+│
+└── docs/
+    └── project_report.pdf
+```
+
+## 🔐 Credentials
+
+For security, Wi-Fi credentials and Blynk authentication tokens are **not included in this repository**.
+
+Before running the code, replace the placeholders in the Arduino sketch with your own credentials:
+
+```cpp
+#define BLYNK_AUTH_TOKEN "YOUR_BLYNK_AUTH_TOKEN"
+
+char ssid[] = "YOUR_WIFI_NAME";
+char pass[] = "YOUR_PASSWORD";
+```
+
+**Never commit real passwords, authentication tokens or API keys to a public repository.**
